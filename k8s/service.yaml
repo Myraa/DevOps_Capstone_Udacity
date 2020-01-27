@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devopscapstone-ENVIRONMENT-svc-BUILD_NUMBER
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+    - name: "https"
+      port: 443
+      targetPort: 80
+      protocol: "TCP"
+  selector:
+    app: devopscapstone
+    version: "BUILD_NUMBER"
