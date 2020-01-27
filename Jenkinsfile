@@ -25,7 +25,7 @@ try{
         
     }
     stage('Build Docker image'){
-        node{
+        node('master'){
             withAWS(credentials: 'blueocean', region: 'us-east-1'){
             sh "\$(aws ecr get-login --no-include-email --region us-east-1)"
             GIT_COMMIT_ID = sh (
@@ -47,7 +47,7 @@ try{
             
     }
     stage('Deploy on Dev'){
-        node{
+        node('master'){
             withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
         	sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
