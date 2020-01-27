@@ -19,7 +19,10 @@ try{
 
     }
     stage('Lint HTML'){
-        sh 'tidy -q -e *.html'
+        node{
+            sh 'tidy -q -e *.html'
+        }
+        
     }
     stage('Build Docker image'){
         node{
