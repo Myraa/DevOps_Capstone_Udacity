@@ -14,7 +14,7 @@ try{
     stage('clone repository'){
         node('master'){
             cleanWs()
-            checkout([$class: 'GitSCM', branches: [[name: '*/$GIT_BRANCH']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:Myraa/DevOps_Capstone_Udacity.git']]])
+            checkout scm
         }
 
     }
