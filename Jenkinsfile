@@ -48,11 +48,7 @@ try{
     }
     stage('Deploy on Dev'){
         node('master'){
-            /*withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){*/
-            withAWS(credentials: 'blueocean', region: 'us-east-1'){
-            sh '''    
-            export IMAGE= "${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"  
-            '''
+            withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
         	sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
         	/*sh "sed -i 's|ACCOUNT|${ACCOUNT}|g' k8s/service.yaml"*/
