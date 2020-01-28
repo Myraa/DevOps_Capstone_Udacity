@@ -51,6 +51,7 @@ try{
             withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
         	sh "echo jenkins home is ${JENKINS_HOME}"
             sh "echo kubeconfig is ${KUBECONFIG}"
+            sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
         	/*sh "sed -i 's|ACCOUNT|${ACCOUNT}|g' k8s/service.yaml"*/
