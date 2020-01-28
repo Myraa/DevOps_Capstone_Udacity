@@ -48,7 +48,8 @@ try{
     }
     stage('Deploy on Dev'){
         node('master'){
-            withEnv(["AWS_SDK_LOAD_CONFIG=1","KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
+            withAWS(credentials: 'blueocean', region: 'us-east-1'){
+            withEnv("[KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
         	sh "echo jenkins home is ${JENKINS_HOME}"
             sh "echo kubeconfig is ${KUBECONFIG}"
             sh "kubectl config current-context"
@@ -86,6 +87,7 @@ try{
         	} 
 
             }
+        }
         }
     }
 
