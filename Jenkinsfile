@@ -46,18 +46,39 @@ try{
         }
             
     }
-    stage('Set current kubectl Context to Dev'){
+    stage('Deploy on Dev'){
         node('master'){
-            withAWS(credentials: 'blueocean', region: 'us-east-1'){
-                sh '''
-                    kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/devcapstonecluster
-                
-                '''
-        
-        
-        }
+            withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
+        	sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
+            sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
+        	/*sh "sed -i 's|ACCOUNT|${ACCOUNT}|g' k8s/service.yaml"*/
+        	sh "sed -i 's|ENVIRONMENT|dev|g' k8s/*.yaml"
+        	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
+        	sh "kubectl apply -f k8s"
+            DEPLOYMENT = sh (
+          		script: 'cat k8s/deployment.yaml | yq -r .metadata.name',
+          		returnStdout: true
+        	).trim()
+        	echo "Creating k8s resources..."
+        	sleep 180
+        	DESIRED= sh (
+          		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$2}' | grep -v DESIRED",
+          		returnStdout: true
+         	).trim()
+        	CURRENT= sh (
+          		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$3}' | grep -v CURRENT",
+          		returnStdout: true
+         	).trim()
+            if (DESIRED.equals(CURRENT)) {
+          		currentBuild.result = "SUCCESS"
+          		return
+        	} else {
+          		error("Deployment Unsuccessful.")
+          		currentBuild.result = "FAILURE"
+          		return
+        	} 
 
-            
+            }
         }
     }
 
