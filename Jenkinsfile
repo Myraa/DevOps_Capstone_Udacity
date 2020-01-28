@@ -46,19 +46,6 @@ try{
         }
             
     }
-    stage('set current Kubectl context'){
-        node('master'){
-            withAWS(credentials: 'blueocean', region: 'us-east-1'){
-            sh '''
-                kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/dev-capstonecluster
-
-            '''
-            }
-
-        }
-        
-
-    }
     stage('Deploy on Dev'){
         node('master'){
             withEnv(["KUBECONFIG=${KUBECONFIG}","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
