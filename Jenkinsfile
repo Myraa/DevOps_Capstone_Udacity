@@ -51,7 +51,6 @@ try{
             withAWS(credentials: 'blueocean', region: 'us-east-1'){
             sh '''
                 kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/dev-capstonecluster
-                aws eks list-clusters
 
             '''
             }
