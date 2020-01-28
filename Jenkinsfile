@@ -47,14 +47,17 @@ try{
             
     }
     stage('set current Kubectl context'){
-        withAWS(credentials: 'blueocean', region: 'us-east-1'){
+        node('master'){
+            withAWS(credentials: 'blueocean', region: 'us-east-1'){
             sh '''
                 kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/dev-capstonecluster
                 aws eks list-clusters
 
             '''
-        
+            }
+
         }
+        
 
     }
     stage('Deploy on Dev'){
