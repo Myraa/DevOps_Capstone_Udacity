@@ -51,6 +51,7 @@ try{
           withAWS(credentials: 'blueocean', region: 'us-east-1'){
               sh '''
               export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config 
+              sudo chown $(id -u):$(id -g) $HOME/.kube/
               echo "kubeconfig in environment is ${KUBECONFIG}"
               kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/devcapstonecluster2
 
