@@ -70,6 +70,7 @@ try{
             IMAGE = "${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"
             sh "export IMAGE"
             sh "echo deploying image ${IMAGE} to Dev"
+            sh "echo kubeconfig in environment is ${KUBECONFIG}"
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
