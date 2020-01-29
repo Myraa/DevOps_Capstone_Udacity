@@ -70,7 +70,7 @@ try{
           		script: 'echo ${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}',
           		returnStdout: true
         	).trim()
-            sh "echo deploying to Dev"
+            sh "echo deploying image ${IMAGE} to Dev"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
         	sh "sed -i 's|ENVIRONMENT|dev|g' k8s/*.yaml"
@@ -80,6 +80,7 @@ try{
                 returnStdout: true
             ).trim()
             echo "Git commit Id: $token"
+            sh "aws-iam-authenticator verify -i devcapstonecluster2 -t $token"
         	sh "kubectl apply -f k8s"
             DEPLOYMENT = sh (
           		script: 'cat k8s/deployment.yaml | yq -r .metadata.name',
