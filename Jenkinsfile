@@ -65,6 +65,10 @@ try{
     stage('deploy to Dev'){
         node('master'){
         withAWS(credentials: 'blueocean', region: 'us-east-1'){
+            IMAGE = sh (
+          		script: 'echo ${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}',
+          		returnStdout: true
+        	).trim()
             sh "echo deploying to Dev"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
