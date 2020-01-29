@@ -71,6 +71,7 @@ try{
           		returnStdout: true
         	).trim()
             sh "echo deploying image ${IMAGE} to Dev"
+            sh "export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config"
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
