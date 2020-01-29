@@ -71,7 +71,7 @@ try{
         	sh "sed -i 's|ENVIRONMENT|dev|g' k8s/*.yaml"
         	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
             token = sh(
-                script: 'aws-iam-authenticator token -i devcapstonecluster',
+                script: 'aws-iam-authenticator token -i devcapstonecluster2',
                 returnStdout: true
             ).trim()
             echo "Git commit Id: $token"
