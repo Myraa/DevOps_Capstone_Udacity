@@ -66,28 +66,21 @@ try{
     stage('deploy to Dev'){
         node('master'){
         withAWS(credentials: 'blueocean', region: 'us-east-1'){
-            sh '''
-              export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config
-              echo "kubeconfig in environment is ${KUBECONFIG}"
-              kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/devcapstonecluster2
-
-              '''
             sh "echo image tag is ${IMAGETAG}"
             IMAGE = "${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"
             sh "export IMAGE"
             sh "echo deploying image ${IMAGE} to Dev"
-            sh "echo kubeconfig in environment is ${KUBECONFIG}"
-            sh "kubectl config current-context"
-            sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
-            sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
-        	sh "sed -i 's|ENVIRONMENT|dev|g' k8s/*.yaml"
-        	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
-            token = sh(
-                script: 'aws-iam-authenticator token -i devcapstonecluster2',
-                returnStdout: true
-            ).trim()
-            echo "Git commit Id: $token"
-        	sh "kubectl apply -f k8s"
+            sh '''
+              export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config
+              echo "kubeconfig in environment is ${KUBECONFIG}"
+              kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/devcapstonecluster2
+              kubectl config current-context
+              sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml
+              sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml
+              sed -i 's|ENVIRONMENT|dev|g' k8s/*.yaml
+              sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml
+              kubectl apply -f k8s  
+              '''
             DEPLOYMENT = sh (
           		script: 'cat k8s/deployment.yaml | yq -r .metadata.name',
           		returnStdout: true
