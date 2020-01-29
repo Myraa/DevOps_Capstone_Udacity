@@ -63,6 +63,7 @@ try{
     }
 
     stage('deploy to Dev'){
+        node('master'){
         withAWS(credentials: 'blueocean', region: 'us-east-1'){
             sh "echo deploying to Dev"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
@@ -98,6 +99,7 @@ try{
           		return
         	}
 
+        }
         }
 
     }
