@@ -1,11 +1,8 @@
-apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
+apiVersion: extensions/v1beta1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
   name: devopscapstone-ENVIRONMENT-BUILD_NUMBER
 spec:
-  selector:
-    matchLabels:
-      app: nginx
   replicas: 1 # tells deployment to run 1 pods matching the template
   template:
     metadata:
@@ -16,5 +13,6 @@ spec:
       containers:
       - name: devopscapstone
         image: IMAGE
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
