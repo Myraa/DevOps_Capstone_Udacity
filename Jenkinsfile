@@ -64,6 +64,7 @@ try{
 
     stage('deploy to Dev'){
         withAWS(credentials: 'blueocean', region: 'us-east-1'){
+            sh "export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config"
             sh "echo kubeconfig is ${KUBECONFIG}"
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
