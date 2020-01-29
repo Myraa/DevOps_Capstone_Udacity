@@ -50,7 +50,7 @@ try{
         node('master'){
           withAWS(credentials: 'blueocean', region: 'us-east-1'){
               sh '''
-              export KUBECONFIG=$KUBECONFIG:$HOME/.kube/config
+              export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config
 
               '''
               sh "kubectl config current-context"
