@@ -66,6 +66,12 @@ try{
     stage('deploy to Dev'){
         node('master'){
         withAWS(credentials: 'blueocean', region: 'us-east-1'){
+            sh '''
+              export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config
+              echo "kubeconfig in environment is ${KUBECONFIG}"
+              kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/devcapstonecluster2
+
+              '''
             sh "echo image tag is ${IMAGETAG}"
             IMAGE = "${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"
             sh "export IMAGE"
