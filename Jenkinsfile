@@ -66,12 +66,10 @@ try{
     stage('deploy to Dev'){
         node('master'){
         withAWS(credentials: 'blueocean', region: 'us-east-1'){
-            IMAGE = sh (
-          		script: 'echo ${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}',
-          		returnStdout: true
-        	).trim()
+            sh "echo image tag is ${IMAGETAG}"
+            IMAGE = "${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"
+            sh "export IMAGE"
             sh "echo deploying image ${IMAGE} to Dev"
-            sh "export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config"
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
