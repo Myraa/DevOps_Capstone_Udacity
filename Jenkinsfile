@@ -50,11 +50,10 @@ try{
         node('master'){
           withAWS(credentials: 'blueocean', region: 'us-east-1'){
               sh '''
-              export KUBECONFIG=$KUBECONFIG:$HOME/.kube/dev-config
+              kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/devcapstonecluster2
 
               '''
-              sh "kubectl config current-context"
-              sh "kubectl config use-context arn:aws:eks:us-east-1:477498628656:cluster/devcapstonecluster2"
+              
           }  
             
         }
