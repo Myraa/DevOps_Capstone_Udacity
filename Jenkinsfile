@@ -60,7 +60,7 @@ try{
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
             DEPLOYMENT = sh (
-          		script: 'cat k8s/deployment.yaml | jq -r ".items[] | .metadata.name"',
+          		script: 'cat k8s/deployment.yaml | jq -r ".metadata.name"',
           		returnStdout: true
         	).trim()
         	echo "Creating k8s resources..."
