@@ -119,7 +119,3 @@ catch (err) {
     	} 
         }
     }    
-
-finally {
-		notifyBuild(currentBuild.result)
-}	
