@@ -59,28 +59,6 @@ try{
         	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
-            DEPLOYMENT = sh (
-          		script: 'cat k8s/deployment.yaml | jq ".metadata.name"',
-          		returnStdout: true
-        	).trim()
-        	echo "Creating k8s resources..."
-        	sleep 180
-        	DESIRED= sh (
-          		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$2}' | grep -v DESIRED",
-          		returnStdout: true
-         	).trim()
-        	CURRENT= sh (
-          		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$3}' | grep -v CURRENT",
-          		returnStdout: true
-         	).trim()
-            if (DESIRED.equals(CURRENT)) {
-          		currentBuild.result = "SUCCESS"
-          		return
-        	} else {
-          		error("Deployment Unsuccessful.")
-          		currentBuild.result = "FAILURE"
-          		return
-        	} 
             
         	echo "Creating k8s resources..."
         	sleep 180
@@ -97,6 +75,50 @@ catch(err){
     currentBuild.result = "FAILURE"
     throw err
 }
+
+def userInput
+try {
+	timeout(time: 60, unit: 'SECONDS') {
+	userInput = input message: 'Proceed to Production?', parameters: [booleanParam(defaultValue: false, description: 'Ticking this box will do a deployment on Prod', name: 'DEPLOY_TO_PROD'),
+                                                                 booleanParam(defaultValue: false, description: 'First Deployment on Prod?', name: 'PROD_BLUE_DEPLOYMENT')]}
+}
+
+catch (err) {
+    def user = err.getCauses()[0].getUser()
+    echo "Aborted by:\n ${user}"
+    currentBuild.result = "SUCCESS"
+    return
+}
+    stage('Deploy on Prod'){
+        node('master'){
+        if (userInput['DEPLOY_TO_PROD'] == true) { 
+            withAWS(credentials: 'blueocean', region: 'us-east-1'){
+            withEnv(["JENKINS_HOME=/home/jenkins","KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
+        	sh "echo Deploying to Production..."  
+            sh "echo jenkins home is ${JENKINS_HOME}"
+            sh "echo kubeconfig is ${KUBECONFIG}"
+            sh "kubectl config current-context"
+            sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
+            sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
+        	sh "sed -i 's|ENVIRONMENT|prod|g' k8s/*.yaml"
+        	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
+        	sh "kubectl apply -f k8s"
+            sh "echo jenkins home is ${JENKINS_HOME}"
+            
+        	echo "Creating k8s resources..."
+        	sleep 180
+
+            }
+        
+            }
+        }
+        else {
+        	echo "Aborted Production Deployment..!!"
+        	currentBuild.result = "SUCCESS"
+        	return
+    	} 
+        }
+    }    
 
 finally {
 		notifyBuild(currentBuild.result)
