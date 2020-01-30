@@ -64,7 +64,7 @@ try{
         	).trim()
         	echo "Creating k8s resources..."
         	sleep 180
-        	DESIRED= sh (
+        	/*DESIRED= sh (
           		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$2}' | grep -v DESIRED",
           		returnStdout: true
          	).trim()
@@ -79,7 +79,7 @@ try{
           		error("Deployment Unsuccessful.")
           		currentBuild.result = "FAILURE"
           		return
-        	} 
+        	} */
 
             }
         
