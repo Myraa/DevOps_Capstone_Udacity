@@ -49,7 +49,7 @@ try{
     stage('Deploy on Dev'){
         node('master'){
             withAWS(credentials: 'blueocean', region: 'us-east-1'){
-            withEnv(["AWS_SDK_LOAD_CONFIG=1","KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
+            withEnv(["JENKINS_HOME=/home/jenkins","KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
         	sh "echo jenkins home is ${JENKINS_HOME}"
             sh "echo kubeconfig is ${KUBECONFIG}"
             sh "kubectl config current-context"
@@ -64,7 +64,7 @@ try{
         	).trim()
         	echo "Creating k8s resources..."
         	sleep 180
-        	/*DESIRED= sh (
+        	DESIRED= sh (
           		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$2}' | grep -v DESIRED",
           		returnStdout: true
          	).trim()
@@ -79,7 +79,7 @@ try{
           		error("Deployment Unsuccessful.")
           		currentBuild.result = "FAILURE"
           		return
-        	} */
+        	} 
 
             }
         
