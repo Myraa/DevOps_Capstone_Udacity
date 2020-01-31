@@ -73,6 +73,8 @@ try{
           		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$3}' | grep -v CURRENT",
           		returnStdout: true
          	).trim()
+             sh "echo Desired deployment is ${DESIRED}"
+             sh "echo current deployment is ${CURRENT}"
             if (DESIRED.equals(CURRENT)) {
           		currentBuild.result = "SUCCESS"
           		return
