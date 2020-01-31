@@ -60,10 +60,10 @@ try{
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
             DEPLOYMENT = sh (
-          		script: 'cat k8s/deployment.yaml | yq -r .metadata.name',
+          		script: 'cat k8s/deployment.yaml | yq .metadata.name',
           		returnStdout: true
         	).trim()
-        	echo "Creating k8s resources..."
+        	echo "Creating k8s resources for deployment ${DEPLOYMENT}..."
         	sleep 180
         	DESIRED= sh (
           		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$2}' | grep -v DESIRED",
