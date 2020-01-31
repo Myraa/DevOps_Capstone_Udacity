@@ -145,6 +145,7 @@ catch (err) {
     stage('Validate Prod Green Env') {
         node('master'){
             if (userInput['PROD_BLUE_DEPLOYMENT'] == false) {
+                withAWS(credentials: 'blueocean', region: 'us-east-1'){
     	        withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/prod-config"]){
         	        GREEN_SVC_NAME = sh (
           		        script: "yq \"metadata.name\" k8s/service.yaml | tr -d '\"'",
@@ -167,6 +168,7 @@ catch (err) {
           		        currentBuild.result = "FAILURE"
         	        }
       	        }
+                }  
             }
         }
     }
