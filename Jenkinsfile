@@ -56,7 +56,7 @@ try{
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
         	sh "sed -i 's|ENVIRONMENT|dev|g' k8s/*.yaml"
-        	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
+        	sh "sed -i 's|BUILD_NUMBER|02|g' k8s/*.yaml"
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
             DEPLOYMENT = sh (
@@ -123,7 +123,7 @@ catch (err) {
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
         	sh "sed -i 's|ENVIRONMENT|prod|g' k8s/*.yaml"
-        	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
+        	sh "sed -i 's|BUILD_NUMBER|02|g' k8s/*.yaml"
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
             
