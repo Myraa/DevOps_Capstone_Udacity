@@ -60,7 +60,7 @@ try{
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
             DEPLOYMENT = sh (
-          		script: 'cat k8s/deployment.yaml | yq .metadata.name',
+          		script: 'cat k8s/deployment.yaml | yq r - metadata.name',
           		returnStdout: true
         	).trim()
         	echo "Creating k8s resources for deployment ${DEPLOYMENT}..."
@@ -145,7 +145,7 @@ catch (err) {
             if (userInput['PROD_BLUE_DEPLOYMENT'] == false) {
     	        withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/prod-config"]){
         	        GREEN_SVC_NAME = sh (
-          		        script: "yq .metadata.name k8s/service.yaml | tr -d '\"'",
+          		        script: "yq \"metadata.name\" k8s/service.yaml | tr -d '\"'",
           		        returnStdout: true
         	        ).trim()
         	        GREEN_LB = sh (
