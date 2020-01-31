@@ -5,6 +5,7 @@ properties([
         [
             string(defaultValue: "master", description: 'Which Git Branch to clone?', name: 'GIT_BRANCH'),
             string(defaultValue: "477498628656", description: 'AWS Account Number?', name: 'ACCOUNT'),
+            string(defaultValue: "devopscapstone-prod-svc", description: 'Blue Service Name to patch in Prod Environment', name: 'PROD_BLUE_SERVICE'),
             string(defaultValue: "devopscapstoneudacity", description: 'AWS ECR Repository where built docker images will be pushed.', name: 'ECR_REPO_NAME')
         ]
     )
@@ -54,12 +55,32 @@ try{
             sh "echo kubeconfig is ${KUBECONFIG}"
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
-            sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
         	sh "sed -i 's|ENVIRONMENT|dev|g' k8s/*.yaml"
         	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
-            
+            DEPLOYMENT = sh (
+          		script: 'cat k8s/deployment.yaml | yq -r .metadata.name',
+          		returnStdout: true
+        	).trim()
+        	echo "Creating k8s resources..."
+        	sleep 180
+        	DESIRED= sh (
+          		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$2}' | grep -v DESIRED",
+          		returnStdout: true
+         	).trim()
+        	CURRENT= sh (
+          		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$3}' | grep -v CURRENT",
+          		returnStdout: true
+         	).trim()
+            if (DESIRED.equals(CURRENT)) {
+          		currentBuild.result = "SUCCESS"
+          		return
+        	} else {
+          		error("Deployment Unsuccessful.")
+          		currentBuild.result = "FAILURE"
+          		return
+        	} 
         	echo "Creating k8s resources..."
         	sleep 180
 
@@ -93,12 +114,11 @@ catch (err) {
         node('master'){
         if (userInput['DEPLOY_TO_PROD'] == true) { 
             withAWS(credentials: 'blueocean', region: 'us-east-1'){
-            withEnv(["JENKINS_HOME=/home/jenkins","KUBECONFIG=${JENKINS_HOME}/.kube/dev-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
+            withEnv(["JENKINS_HOME=/home/jenkins","KUBECONFIG=${JENKINS_HOME}/.kube/prod-config","IMAGE=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/${ECR_REPO_NAME}:${IMAGETAG}"]){
         	sh "echo Deploying to Production..."  
             sh "echo jenkins home is ${JENKINS_HOME}"
             sh "echo kubeconfig is ${KUBECONFIG}"
             sh "kubectl config current-context"
-            sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
         	sh "sed -i 's|ENVIRONMENT|prod|g' k8s/*.yaml"
         	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
@@ -118,4 +138,34 @@ catch (err) {
         	return
     	} 
         }
-    }    
+    }
+
+    stage('Validate Prod Green Env') {
+        node('master'){
+            if (userInput['PROD_BLUE_DEPLOYMENT'] == false) {
+    	        withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/prod-config"]){
+        	        GREEN_SVC_NAME = sh (
+          		        script: "yq .metadata.name k8s/service.yaml | tr -d '\"'",
+          		        returnStdout: true
+        	        ).trim()
+        	        GREEN_LB = sh (
+          		    script: "kubectl get svc ${GREEN_SVC_NAME} -o jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"",
+          		    returnStdout: true
+        	        ).trim()
+        	        echo "Green ENV LB: ${GREEN_LB}"
+        	        RESPONSE = sh (
+          		        script: "curl -s -o /dev/null -w \"%{http_code}\" http://${GREEN_LB}/index.html -I",
+          		        returnStdout: true
+        	        ).trim()
+         	        if (RESPONSE == "200") {
+          		        echo "Application is working fine. Proceeding to patch the service to point to the latest deployment..."
+        	        }
+        	        else {
+          		        echo "Application didnot pass the test case. Not Working"
+          		        currentBuild.result = "FAILURE"
+        	        }
+      	        }
+            }
+        }
+    }
+
