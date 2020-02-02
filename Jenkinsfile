@@ -56,7 +56,7 @@ try{
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
         	sh "sed -i 's|ENVIRONMENT|dev|g' k8s/*.yaml"
-        	sh "sed -i 's|BUILD_NUMBER|04|g' k8s/*.yaml"
+        	sh "sed -i 's|BUILD_NUMBER|01|g' k8s/*.yaml"
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
             DEPLOYMENT = sh (
@@ -122,8 +122,7 @@ catch (err) {
             sh "echo kubeconfig is ${KUBECONFIG}"
             sh "kubectl config current-context"
             sh "sed -i 's|IMAGE|${IMAGE}|g' k8s/deployment.yaml"
-        	sh "sed -i 's|ENVIRONMENT|prod|g' k8s/*.yaml"
-        	sh "sed -i 's|BUILD_NUMBER|04|g' k8s/*.yaml"
+        	sh "sed -i 's|dev|prod|g' k8s/*.yaml"
         	sh "kubectl apply -f k8s"
             sh "echo jenkins home is ${JENKINS_HOME}"
             
@@ -189,7 +188,7 @@ catch (err) {
           		returnStdout: true
         	).trim()
         	echo "${BLUE_DEPLOYMENT_NAME}"
-          	sh """kubectl patch svc  "${PROD_BLUE_SERVICE}" -p '{\"spec\":{\"selector\":{\"app\":\"devopscapstone\",\"version\":\"04\"}}}'"""
+          	sh """kubectl patch svc  "${PROD_BLUE_SERVICE}" -p '{\"spec\":{\"selector\":{\"app\":\"devopscapstone\",\"version\":\"${BUILD_NUMBER}\"}}}'"""
           	echo "Deleting Blue Environment..."
           	sh "kubectl delete svc ${GREEN_SVC_NAME}"
           	sh "kubectl delete deployment ${BLUE_DEPLOYMENT_NAME}"
