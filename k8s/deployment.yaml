@@ -1,17 +1,17 @@
 apiVersion: extensions/v1beta1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: Capstone-ENVIRONMENT-BUILD_NUMBER
+  name: capstone-ENVIRONMENT-BUILD_NUMBER
 spec:
   replicas: 1 # tells deployment to run 1 pods matching the template
   template:
     metadata:
       labels:
-        app: Capstone
+        app: capstone
         version: "BUILD_NUMBER"
     spec:
       containers:
-      - name: Capstone
+      - name: capstone
         image: IMAGE
         imagePullPolicy: IfNotPresent
         ports:
