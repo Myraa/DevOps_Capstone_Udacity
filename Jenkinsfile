@@ -66,11 +66,11 @@ try{
         	echo "Creating k8s resources for deployment ${DEPLOYMENT}..."
         	sleep 180
         	DESIRED= sh (
-          		script: "kubectl get rs | awk '{print \$2}' | grep -v DESIRED",
+          		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$2}' | grep -v DESIRED | cut -f2 -d '/'",
           		returnStdout: true
          	).trim()
         	CURRENT= sh (
-          		script: "kubectl get rs | awk '{print \$3}' | grep -v CURRENT",
+          		script: "kubectl get deployment/$DEPLOYMENT | awk '{print \$2}' | grep -v CURRENT | cut -f1 -d '/'",
           		returnStdout: true
          	).trim()
              sh "echo Desired deployment is ${DESIRED}"
