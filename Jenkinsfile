@@ -148,9 +148,10 @@ catch (err) {
                 withAWS(credentials: 'blueocean', region: 'us-east-1'){
     	        withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/prod-config"]){
         	        GREEN_SVC_NAME = sh (
-          		        script: "yq \"metadata.name\" k8s/service.yaml | tr -d '\"'",
+          		        script: "cat k8s/service.yaml | yq r - metadata.name | tr -d '\"'",
           		        returnStdout: true
         	        ).trim()
+                    echo "GREEN service Name ${GREEN_SVC_NAME}"
         	        GREEN_LB = sh (
           		    script: "kubectl get svc ${GREEN_SVC_NAME} -o jsonpath=\"{.status.loadBalancer.ingress[*].hostname}\"",
           		    returnStdout: true
@@ -172,4 +173,29 @@ catch (err) {
             }
         }
     }
+
+    stage('Patch Prod Blue Service') {
+    node('master'){
+      if (userInput['PROD_BLUE_DEPLOYMENT'] == false) {
+        withAWS(credentials: 'blueocean', region: 'us-east-1'){
+      	withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/prod-config"]){
+        	BLUE_VERSION = sh (
+            	script: "kubectl get svc/${PROD_BLUE_SERVICE} -o yaml | yq .spec.selector.version",
+          	returnStdout: true
+        	).trim()
+        	CMD = "kubectl get deployment -l version=${BLUE_VERSION} | awk '{if(NR>1)print \$1}'"
+        	BLUE_DEPLOYMENT_NAME = sh (
+            	script: "${CMD}",
+          		returnStdout: true
+        	).trim()
+        	echo "${BLUE_DEPLOYMENT_NAME}"
+          	sh """kubectl patch svc  "${PROD_BLUE_SERVICE}" -p '{\"spec\":{\"selector\":{\"app\":\"taxicab\",\"version\":\"${BUILD_NUMBER}\"}}}'"""
+          	echo "Deleting Blue Environment..."
+          	sh "kubectl delete svc ${GREEN_SVC_NAME}"
+          	sh "kubectl delete deployment ${BLUE_DEPLOYMENT_NAME}"
+      	}
+      }
+    }
+    }
+}
 
