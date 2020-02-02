@@ -180,7 +180,7 @@ catch (err) {
         withAWS(credentials: 'blueocean', region: 'us-east-1'){
       	withEnv(["KUBECONFIG=${JENKINS_HOME}/.kube/prod-config"]){
         	BLUE_VERSION = sh (
-            	script: "kubectl get svc/${PROD_BLUE_SERVICE} -o yaml | yq .spec.selector.version",
+            	script: "kubectl get svc/${PROD_BLUE_SERVICE} -o yaml | yq r - spec.selector.version",
           	returnStdout: true
         	).trim()
         	CMD = "kubectl get deployment -l version=${BLUE_VERSION} | awk '{if(NR>1)print \$1}'"
