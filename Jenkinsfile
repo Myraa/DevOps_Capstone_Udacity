@@ -188,7 +188,7 @@ catch (err) {
           		returnStdout: true
         	).trim()
         	echo "${BLUE_DEPLOYMENT_NAME}"
-          	sh """kubectl patch svc  "${PROD_BLUE_SERVICE}" -p '{\"spec\":{\"selector\":{\"app\":\"devopscapstone\",\"version\":\"${BUILD_NUMBER}\"}}}'"""
+          	sh """kubectl patch svc  "${PROD_BLUE_SERVICE}" -p '{\"spec\":{\"selector\":{\"app\":\"capstone\",\"version\":\"${BUILD_NUMBER}\"}}}'"""
           	echo "Deleting Blue Environment..."
           	sh "kubectl delete svc ${GREEN_SVC_NAME}"
           	sh "kubectl delete deployment ${BLUE_DEPLOYMENT_NAME}"
