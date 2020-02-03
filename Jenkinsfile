@@ -5,8 +5,8 @@ properties([
         [
             string(defaultValue: "master", description: 'Which Git Branch to clone?', name: 'GIT_BRANCH'),
             string(defaultValue: "477498628656", description: 'AWS Account Number?', name: 'ACCOUNT'),
-            string(defaultValue: "devopscapstone-prod-svc", description: 'Blue Service Name to patch in Prod Environment', name: 'PROD_BLUE_SERVICE'),
-            string(defaultValue: "devopscapstoneudacity", description: 'AWS ECR Repository where built docker images will be pushed.', name: 'ECR_REPO_NAME')
+            string(defaultValue: "capstone-prod-svc", description: 'Blue Service Name to patch in Prod Environment', name: 'PROD_BLUE_SERVICE'),
+            string(defaultValue: "capstoneudacityrepo", description: 'AWS ECR Repository where built docker images will be pushed.', name: 'ECR_REPO_NAME')
         ]
     )
 ])
