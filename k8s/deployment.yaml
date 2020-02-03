@@ -11,7 +11,7 @@ spec:
         version: "BUILD_NUMBER"
     spec:
       containers:
-      - name: capstone
+      - name: capstone-ENVIRONMENT-BUILD_NUMBER
         image: IMAGE
         imagePullPolicy: IfNotPresent
         ports:
